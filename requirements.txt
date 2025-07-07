@@ -1,0 +1,26 @@
+
+## 🧩 Technologies
+
+- **Python 3**
+- **Flask**
+- **Google Apps Script**
+- **ngrok** (for public access),or run batch file to move to directory and run
+
+
+
+## 📁 google_scripts/
+
+| File | Purpose |
+|------|---------|
+| `Code.gs` | Handles organization of the main google sheet|
+| `phoneFormatter.gs` | Formats phone numbers on the main google sheet |
+| `sendFormtoPrinter_main.gs` | (Optional) Creates trigger programmatically |
+| `Vehicle_or_Parts.gs| Filters between Vehicle or Parts and copies information to either a parts sheet or vehicle google sheet|
+
+## 🛠️ Setup Instructions
+
+1. Clone the repo:
+
+```bash
+git clone https://github.com/Reyalmeida/script_to_printer.git
+cd script_to_printer
