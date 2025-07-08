@@ -1,3 +1,5 @@
+![System Diagram](docs/architecture.png)
+
 ## 📄 Google Apps Script Integration
 
 This project connects a Google Form or Sheet to your local Flask app.
