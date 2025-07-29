@@ -1,9 +1,12 @@
 from flask import Flask, request
+from docx import Document
+from docx.shared import Inches
 import requests
 import tempfile
 import subprocess
 import os
 import time
+
 
 app = Flask(__name__)
 def start_ngrok_server():
@@ -22,7 +25,10 @@ def start_ngrok_server():
 
 # ✅ Printer function using Notepad to print the content
 def print_to_printer(content):
-    # Write the content to a temporary text file
+    doc = Document()
+    paragraph = doc.add_paragraph(content)
+    print("the paragraph:",paragraph.text)
+    # Write the content to a temporary text file replace to .docx
     with tempfile.NamedTemporaryFile(delete=False, suffix='.txt', mode='w', encoding='utf-8') as tmpfile:
         tmpfile.write(content)
         tmpfile_path = tmpfile.name
@@ -63,6 +69,7 @@ def print_info():
     Year: {data['year']}
     Make: {data['make']}
     Model:{data['model']}
+    Diagnostics:{data['diagnostics']}
     Modules:{data['modules']}
     Single_stage:{data['single_stage']}
     Dual_stage:{data['dual_stage']}
@@ -93,7 +100,7 @@ if __name__ == "__main__":
     # if url:
     #     post_url_to_google_apps_script(url)
     # app.run(host='0.0.0.0', port=5000, threaded=True, debug=True)
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)
 
 
 
