@@ -1,49 +1,95 @@
 from flask import Flask, request
 from docx import Document
 from docx.shared import Inches
+from docx.shared import Pt
 import requests
 import tempfile
 import subprocess
 import os
+import sys
 import time
+import win32com.client
+import pythoncom
+
+
 
 
 app = Flask(__name__)
-def start_ngrok_server():
-    subprocess.Popen(["ngrok.exe","http","5000"])
-    time.sleep(3)
+
+def print_and_close_word(doc_path):
+    print("Opening word...")
+    pythoncom.CoInitialize()# needs to be initialize manually since ngrok is
+    #running on a thread, word doesnt like to initialize from a thread so
+    # one has to initialize manually
+    
+    word = win32com.client.Dispatch("Word.Application")
+    word.Visible = True
+    
     try:
-        # asking ngrok for information readonly
-        response = requests.get("http://127.0.0.1:4040/api/tunnels")
-        #convert Json respopnse to Python Dic
-        url = response.json()["tunnels"][0]["public_url"]
-        print("ngrok url", url)
-        return url
+        doc = word.Documents.Open(doc_path)
+        doc.PrintOut(Background=False, Range=0)
+
+        time.sleep(5)
+        doc.Close(False)
+        print("☑️Document printed and closed")
     except Exception as e:
-        print("error printing url", e)
-        return None
+        print(f"❌ Error while printing:{e}")
+    finally:
+        word.Quit()
+        print("📁 word program closed.")
+# def add_bolded_content(doc, content):
+#     for line in content.strip().split('\n'):
+#         if ':' in line:
+#             label, value = line.split(':', 1)
+#             paragraph = doc.add_paragraph()
+#             run1 = paragraph.add_run(label + ": ")
+#             run1.font.size = Pt(14)
+
+#             run2 = paragraph.add_run(value.strip())
+#             run2.bold = True
+#             run2.font.size = Pt(14)
+#         else:
+#             paragraph = doc.add_paragraph(line)
 
 # ✅ Printer function using Notepad to print the content
 def print_to_printer(content):
     doc = Document()
-    paragraph = doc.add_paragraph(content)
-    print("the paragraph:",paragraph.text)
+    paragraph = doc.add_paragraph()
+    run= paragraph.add_run(content)
+    run.font.size= Pt(14)
+  
+
+
+    if getattr(sys, 'frozen', False):
+        script_dir = sys._MEIPASS
+    else:
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+    image_path = os.path.join(script_dir, "app", "Sf_QR.JPEG")
+    doc.add_picture(image_path,width=Inches(1.00),height=Inches(1.00))
+    # print("the paragraph:",paragraph.text)
     # Write the content to a temporary text file replace to .docx
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.txt', mode='w', encoding='utf-8') as tmpfile:
-        tmpfile.write(content)
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.docx') as tmpfile:
+       
         tmpfile_path = tmpfile.name
 
     print(f"📄 Temp file created at: {tmpfile_path}")
-
-    try:
-        # Use Notepad to print the file
-        subprocess.run(['notepad.exe', '/p', tmpfile_path], check = True)
-        print("✅ Print job sent via notepad")
-    except subprocess.CalledProcessError as e:
-        print("❌ Failed to print:", e)
+    doc.save(tmpfile_path)
+    word_path =r"C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE"
+    print_and_close_word(tmpfile_path)
+    # try:
+    #     print_and_close_word(tempfile_path)
+    #     # Use Notepad to print the file
+    # #     subprocess.run([word_path,"/q","/n","/mFilePrintDefault","/t",tmpfile_path], check = True)
+    # #     print("✅ Print job sent via notepad")
+    # # except subprocess.CalledProcessError as e:
+    # #     print(f"❌ Failed to print:, {e.returncode}")
+    
+    # except Exception as e:
+    #     print(f"❌ unexpected error {e}")
+        
 
     # Optional: delete the temp file after printing
-    time.sleep(5)  # Give Notepad time to send the print job
+    time.sleep(5)  # Give word time to send the print job
     try:
         os.remove(tmpfile_path)
         print("🗑️ Temp file deleted.")
@@ -68,13 +114,13 @@ def print_info():
 📞 Phone#: {data['phone_number']}
     Year: {data['year']}
     Make: {data['make']}
-    Model:{data['model']}
-    Diagnostics:{data['diagnostics']}
-    Modules:{data['modules']}
-    Single_stage:{data['single_stage']}
-    Dual_stage:{data['dual_stage']}
-    Buckles:{data['buckles']}
-    what_will_you_drop_off:{data['wwydoff']}
+    Model: {data['model']}
+    Diagnostics: {data['diagnostics']}
+    Modules: {data['modules']}
+    Single_stage: {data['single_stage']}
+    Dual_stage: {data['dual_stage']}
+    Buckles: {data['buckles']}
+    what_will_you_drop_off: {data['wwydoff']}
     
 """
 

@@ -2,10 +2,10 @@
 
 
 a = Analysis(
-    ['app.py'],
+    ['app\\app.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('app/Sf_QR.JPEG', 'app')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
